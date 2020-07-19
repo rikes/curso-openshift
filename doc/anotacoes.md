@@ -63,6 +63,9 @@ Várias equipes de desenvolvimento ou clientes costumam compartilhar a mesma pla
 
 Um contêiner é uma forma de empacotar um aplicativo com todas as suas dependências, como ambientes de tempo de execução e bibliotecas.
 
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/deploy-pod.svg "Container")
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/deploy-arch.png "Arquitetura")
 
 O diagrama anterior mostra um contêiner de um aplicativo Node.js. O contêiner agrupa o tempo de execução de Node.js, os pacotes Node.js exigidos pelo aplicativo e o próprio código de aplicativo.
 
