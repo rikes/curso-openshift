@@ -1,6 +1,6 @@
 Anotações:
 
-### Aula 1
+### Capítulo 1
 
 
 #### Módulos Node.js
@@ -55,4 +55,18 @@ O comando cria a pasta myapp que contém um arquivo packages.json:
 O código-fonte do módulo app está no arquivo app.js, localizado na raiz do diretório do projeto myapp. O arquivo app.js contém a lógica primária do aplicativo.
 
 A variável app faz referência a uma instância de um aplicativo Express. O aplicativo está configurado para escutar solicitações na porta 8080. Quando você acessa o ponto de extremidade do aplicativo, o aplicativo envia a resposta: Hello, World!.
+
+### Capítulo 2
+
+#### Arquitetura de aplicativo
+Várias equipes de desenvolvimento ou clientes costumam compartilhar a mesma plataforma OpenShift. Para obter segurança e isolamento entre projetos e clientes, o OpenShift compila e executa os aplicativos em containers isolados.
+
+Um contêiner é uma forma de empacotar um aplicativo com todas as suas dependências, como ambientes de tempo de execução e bibliotecas.
+
+
+O diagrama anterior mostra um contêiner de um aplicativo Node.js. O contêiner agrupa o tempo de execução de Node.js, os pacotes Node.js exigidos pelo aplicativo e o próprio código de aplicativo.
+
+Para gerenciar os aplicativos em contêineres, o OpenShift adiciona uma camada de abstração conhecida como pod.
+
+Pods são a unidade básica de trabalho do OpenShift. Um pod encapsula um contêiner e outros parâmetros, como um endereço IP exclusivo ou um armazenamento. Um pod também pode agrupar vários contêineres relacionados que compartilham recursos.
 
