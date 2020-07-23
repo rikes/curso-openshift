@@ -73,3 +73,22 @@ Para gerenciar os aplicativos em contêineres, o OpenShift adiciona uma camada d
 
 Pods são a unidade básica de trabalho do OpenShift. Um pod encapsula um contêiner e outros parâmetros, como um endereço IP exclusivo ou um armazenamento. Um pod também pode agrupar vários contêineres relacionados que compartilham recursos.
 
+### Capítulo 3. Configuração de compilações do aplicativo no OpenShift
+
+O OpenShift oferece muitas maneiras diferentes de criar uma imagem de contêiner. O método mais comum é chamado de Source to Image (S2I). Em uma compilação S2I, o código-fonte do aplicativo é combinado com uma imagem do construtor S2I, que é uma imagem de contêiner que contém as ferramentas, as bibliotecas e as estruturas necessárias para executar o aplicativo.
+
+Por exemplo, para executar aplicativos Node.js no OpenShift, você usará uma imagem do construtor S2I do Node.js. A imagem do construtor S2I do Node.js é uma imagem de contêiner configurada com tempo de execução do Node.js, ferramentas de gerenciamento de pacotes (NPM) e outras bibliotecas necessárias para execução de aplicativos Node.js.
+
+O OpenShift pode detectar automaticamente o tipo de aplicativo e escolher uma imagem apropriada do construtor S2I para compilar a imagem final de contêiner do aplicativo.
+
+Por exemplo, se a raiz da árvore de código-fonte do aplicativo contiver o arquivo package.json, o OpenShift selecionará automaticamente a imagem mais recente do construtor S2I do Node.js para a compilação. Se desejar, você pode substituir a seleção padrão e escolher sua própria imagem do construtor S2I para o processo de compilação.
+
+#### Acionamento manual de compilações
+
+Depois que um aplicativo for implantado no OpenShift, o OpenShift poderá recompilar e reimplantar uma nova imagem de contêiner sempre que o código-fonte do aplicativo for modificado. Use o cliente da linha de comando **oc** ou o **console da web** do OpenShift para acionar uma nova compilação do aplicativo atualizado *manualmente*.
+
+#### Compilações automáticas usando webhooks
+
+Um webhook é um mecanismo para se inscrever em eventos de um sistema de gerenciamento de código-fonte, como o GitHub. O OpenShift gera URLs de webhook exclusivas para os aplicativos criados a partir de fontes armazenadas em repositórios Git. Os webhooks são configurados em um repositório Git. Com base na configuração do webhook, **o GitHub enviará uma solicitação HTTP POST para a URL do webhook**, com detalhes que incluem as informações de commit mais recentes.
+
+**A API REST do OpenShift escuta notificações de webhook nesta URL e aciona automaticamente uma nova compilação**. Você deve configurar seu webhook para apontar para essa URL exclusiva.
