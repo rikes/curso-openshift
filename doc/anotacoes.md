@@ -92,3 +92,37 @@ Depois que um aplicativo for implantado no OpenShift, o OpenShift poderá recomp
 Um webhook é um mecanismo para se inscrever em eventos de um sistema de gerenciamento de código-fonte, como o GitHub. O OpenShift gera URLs de webhook exclusivas para os aplicativos criados a partir de fontes armazenadas em repositórios Git. Os webhooks são configurados em um repositório Git. Com base na configuração do webhook, **o GitHub enviará uma solicitação HTTP POST para a URL do webhook**, com detalhes que incluem as informações de commit mais recentes.
 
 **A API REST do OpenShift escuta notificações de webhook nesta URL e aciona automaticamente uma nova compilação**. Você deve configurar seu webhook para apontar para essa URL exclusiva.
+
+#### Comandos OpenShift cli oc
+
+Efetuar login no OpenSfhit, com url, username e Password:
+`oc login https://api.cluster.domain.example.com:6443`
+
+Criar um novo projeto:
+`oc new-project your-name-project`
+
+Implante um novo aplicativo, referenciando o projeto anterior:
+`oc new-app --name your-name-app https://github.com/rikes/curso-openshift.git#update-app --context-dir express-helloworld`
+Onde *new-app* é comando para criar um novo app definindo o nome através do comando *--name*. Informamos a URL do repósitorio bem como a branch, por fim o comando *--context-dir* indicará a pasta onde se encontra o projeto (se estiver na raiz do projeto o comando é desnecessário).
+
+Verificar compilações em execução:
+`oc get pods`
+
+Obter todo o log de um pod
+`oc logs -f name-pod`
+
+
+##### Teste o app criado através da cli oc
+
+Os passos anteriores permitiram a publicação e compilação do projeto, porém a rota ainda não existe, ficando inacessível o acesso através da url. Este paso visa expor a rota para internet
+
+Verifique os serviços (app) disponiveis em seu workspace(projeto) 
+`oc get svc`
+
+Exponha o projeto:
+`oc expose svc/your-name-app`
+
+Verifique detalhes da rota:
+`oc get routes`
+
+
