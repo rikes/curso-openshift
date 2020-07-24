@@ -122,7 +122,16 @@ Verifique os serviços (app) disponiveis em seu workspace(projeto)
 Exponha o projeto:
 `oc expose svc/your-name-app`
 
-Verifique detalhes da rota:
+Verifique detalhes da rota (inclusive a url de acesso):
 `oc get routes`
+
+
+##### Automatizando o deploy
+
+Todo o commit realizado pelo projeto no repositório requer um novo build no openshift, por padrão o build é manual. Mas é possível criar *webhooks* no intuito do repositório (gitHub) enviar uma mensagem ao openshift para realização do build, assim a compilação será automática por commit.
+
+Vá no seu repósitorio, *Settings* em seguida escolha *Webhooks*. Volte ao openShift na aba *builds*, selecione o projeto e copia a url do webwook do github ao fim da página em *Overview*.
+
+Adicione a url nas configurações do gitHub e altere *Content type* para application/json.. O GitHub envia um ping de teste à URL de carga para confirmar a disponibilidade e exibe uma marca de seleção verde para o webhook, em caso de êxito.
 
 
