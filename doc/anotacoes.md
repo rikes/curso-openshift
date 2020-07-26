@@ -253,7 +253,8 @@ metadata:
 data:
   UNITS: metric
 ```
-```
+```markdown
+- Nota:
 Certifique-se de manter o recuo correto conforme mostrado no trecho. Os arquivos YAML diferenciam a distância do recuo.
 ```
 ###### Inicie a publicação do App no OpenShift
@@ -289,6 +290,70 @@ Teste novamente, perceba que os dados são exibidos em F*:
 
 #### Conectando sua aplicação ao banco de dados de sua preferência
 
+O Red Hat OpenShift Container Platform é compatível com a implantação de vários bancos de dados, como MySQL, PostgreSQL e MongoDB, usando a visualização Developer do console da web do OpenShift ou o cliente da linha de comando do OpenShift (oc).
 
+Ao externalizar a configuração do banco de dados e armazená-la em um segredo, você evita armazenar informações confidenciais em arquivos de configuração com texto simples. Outra vantagem dessa abordagem é o suporte para alternar entre diferentes ambientes, como desenvolvimento, preparação, controle de qualidade e produção, sem implantar o aplicativo novamente.
+
+```
+- NOTA
+Quando você implanta um banco de dados usando um dos modelos incluídos fornecidos pelo OpenShift, um segredo contendo o nome de usuário, a senha e o nome do banco de dados é criado automaticamente. O nome do segredo é o mesmo que o nome do serviço de banco de dados.
+
+Embora você possa usar essa secret para se conectar ao banco de dados, pode ser conveniente criar sua própria secret para armazenar mais detalhes sobre o banco de dados, incluindo sinalizadores específicos do aplicativo.
+
+Você pode criar uma secret único que contém todos os detalhes da configuração do banco de dados. **Você pode excluir com segurança a secret padrão gerado se não precisar dele.**
+```
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/App-Database.png "Fluxo para inclusão de um banco de dados no OpenShift")
+
+O fluxo de trabalho para acessar bancos de dados em aplicativos implantados no OpenShift é o seguinte:
+
+1. Crie uma secret para armazenar a configuração de acesso ao banco de dados usando o console da web do OpenShift ou o cliente de linha de comando do OpenShift (oc).
+
+2. O OpenShift insere a secret nos pods do aplicativo depois que você edita a configuração de implantação do aplicativo e mapeia as variáveis de ambiente para usar o secret.
+
+3. O aplicativo acessa os valores durante o tempo de execução usando pesquisas com base na chave. O OpenShift reverte a conversão dos dados codificados em base64 para um formato legível para o aplicativo.
+
+Para aplicativos JavaScript baseados em Node.js, o formato geral da string de conexão com o banco de dados PostgreSQL é:
+
+```javascript
+postgresql://username:password@dbservice:port/dbname
+```
+
+- *username* = nome de usuário do banco de dados para acessar o banco de dados
+
+- *password* = senha para acessar o banco de dados
+
+- *dbservice* = nome do serviço para o banco de dados implantado em OpenShift
+
+- *port* = porta TCP na qual o servidor do banco de dados escuta conexões de entrada; o padrão é "5432" para PostgreSQL
+
+- *dbname* = nome do banco de dados
+
+Exemplo de url de um banco de dados implantando no OpenShift:
+```javascript
+postgresql://myapp:mypass@mydbservice:5432/mydb
+```
+
+Exemplo de url de um banco de dados implantando **fora** do OpenSfhit
+
+```javascript
+postgresql://myapp:mypass@mydbhost.example.com:5432/mydb
+```
+
+##### Criando uma secret de acesso ao banco de dados
+
+Devemos esconder informações de acesso ao banco de dados, para tanto, seria criado uma secret.
+ Clique em *Advanced → Search* no console da web do OpenShift, após isso clique em *Service* para expandir o menu e procure secret, logo em seguida escolha *Create → Key/Value Secret* (como visto no exercício anterior).
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/example-db-create-secret.png "Exemplo de inclusão de secret de um banco de dados")
+
+Após sua inclusão, mapeia a secret na variável de ambiente da sua aplicação.
+Por fim, recupera as informações do banco de dados no código da app conforme exemplo abaixo:
+
+```javascript
+...output omitted...
+const DB_CONFIG = process.env.DB_CONFIG
+...output omitted...
+```
 
 https://access.redhat.com/documentation/en-us/openshift_container_platform/4.2/html-single/cli_tools/index#creating-an-application-with-a-database
+
