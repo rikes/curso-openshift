@@ -132,6 +132,89 @@ Todo o commit realizado pelo projeto no repositório requer um novo build no ope
 
 Vá no seu repósitorio, *Settings* em seguida escolha *Webhooks*. Volte ao openShift na aba *builds*, selecione o projeto e copia a url do webwook do github ao fim da página em *Overview*.
 
-Adicione a url nas configurações do gitHub e altere *Content type* para application/json.. O GitHub envia um ping de teste à URL de carga para confirmar a disponibilidade e exibe uma marca de seleção verde para o webhook, em caso de êxito.
+Adicione a url nas configurações do gitHub e altere *Content type* para application/json.. O GitHub envia um ping de teste à URL de carga para confirmar a disponibilidade e exibe uma marca de seleção verde para o webhook, em caso de êxito (não é necessário senha/secret).
+
+Faça uma alteração no projeto e realize um no push. Assim que finalizado o processo de build inciará:
+Confira em: Builds -> your-app -> Builds;
+ou `oc get pods`;
+
+Assim que finalizado acessa a url para ver a atualização.
+
+obs.: Para obter os logs do App, vá ao openshift em:
+Topology -> your-app -> View Logs;
+
+
+
+#### Externalização da configuração de aplicativos no OpenShift
+
+Os aplicativos nativos de nuvem armazenam a configuração de aplicativos como variáveis de ambiente em vez de codificar os valores da configuração diretamente no código-fonte dos aplicativos. A vantagem dessa abordagem é que ela cria uma separação entre a configuração do aplicativo e o ambiente no qual ele está sendo executado. A configuração normalmente varia de um ambiente para outro, mas o código-fonte não varia. Também chamado de **sistemas agnósticos** em algumas organizações.
+
+Por exemplo, digamos que você deseje promover um aplicativo do ambiente de desenvolvimento para o ambiente de produção com estágios intermediários como testes e aceitação do usuário. O código-fonte permanece o mesmo, mas os detalhes de configuração específicos para cada ambiente, como os detalhes de conexão para um banco de dados fora da produção, não devem ser estáticos e precisam ser gerenciados separadamente.
+
+##### Configuração de aplicativos usando secrets e maps
+O Red Hat OpenShift Container Platform oferece os recursos *Secret* e *Configuration Map* para externalizar a configuração de um aplicativo.
+
+Os *secrets* são usados para armazenar informações confidenciais, como senhas, credenciais de banco de dados e qualquer outro dado que não deva ser armazenado em texto não criptografado.
+
+Os mapas de configuração, também chamados de *config maps*, são usados para armazenar dados de configuração de aplicativos não confidenciais em texto não criptografado.
+
+Você pode armazenar dados em segredos e mapas de configuração como pares de chave-valor ou pode armazenar um arquivo inteiro (por exemplo, arquivos de configuração) no segredo. Os dados secretos são codificados usando base64 e armazenados em disco, enquanto os mapas de configuração são armazenados como texto simples. Isso fornece uma camada adicional de segurança aos segredos para garantir que os dados confidenciais não sejam armazenados em texto não criptografado que os seres humanos possam ler.
+
+Exemplo de definição de **config map** em YAML (.yml):
+
+```yml
+apiVersion: v1
+data:
+    username: myuser
+    password: mypass
+kind: ConfigMap
+metadata:
+    name: myconf
+```
+
+*Data*: Dados armazenados no mapa de configuração.
+*Kind*: Tipo de recurso do OpenShift (*config map*);
+*Metadata*: Nome do *config map*;
+
+Exemplo de definição de um secret em YAML(.yml):
+
+```yml
+apiVersion: v1
+data:
+    username: cm9vdAo= 1
+    password: c2VjcmV0Cg== 2
+kind: Secret
+metadata:
+    name: mysecret
+    type: Opaque
+```
+*Data*: Dados armazenados no *secret* em formato codificado usando base64
+*Kind*:Tipo de recurso do OpenShift (*secret*)
+*Metadata* -> *name*: Nome da *secret*
+
+Observe que os dados da secret (username e password) são codificados no formato base64 e não são armazenados em texto simples como os dados do config map.
+
+Depois de criar as secrets e maps config, você deve associar os recursos aos aplicativos fazendo referência a eles na configuração de implantação de cada aplicativo.
+
+A imagem a segui demonstra a utilização do config maps e secrets em diferentes ambientes de desenvolvimento no OpenSfhit.
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/ConfigMaps-and-Secrets.png "Uso do config maps e secrets pelo Openshift")
+
+Fluxo:
+1. Crie mapas de configuração e segredos usando o console da web do OpenShift ou o cliente de linha de comando do OpenShift (oc). Você pode armazenar pares de chave-valor ou um arquivo inteiro.
+
+2. Depois de editar a configuração de implantação do aplicativo e mapear as variáveis de ambiente para usar os segredos e mapas de configuração configurados no projeto, o OpenShift insere os segredos e os mapas de configuração nos pods do aplicativo.
+
+3. O aplicativo acessa os valores durante o tempo de execução usando pesquisas com base na chave. O OpenShift converte os dados codificados em base64 para um formato que o aplicativo consiga le
+
+https://docs.openshift.com/container-platform/4.2/nodes/pods/nodes-pods-secrets.html
+
+
+##### Configuração de secrets do aplicativo 
+
+Neste exercício, será implmentado um aplicativo Node.js que use config maps e secrets no Red Hat OpenShift Container Platform.
+
+Crie uma conta no site https://openweathermap.org/. Após ativa-la espere 10 minutos e obtenha uma chave da API na aba "API Keys", utilizando o navegador e sua chave teste API através do link abaixo e verifique se retorna um JSON:
+http://api.openweathermap.org/data/2.5/weather?q=London&appid=your-api_key
 
 
