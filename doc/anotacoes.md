@@ -217,4 +217,47 @@ Neste exercício, será implmentado um aplicativo Node.js que use config maps e 
 Crie uma conta no site https://openweathermap.org/. Após ativa-la espere 10 minutos e obtenha uma chave da API na aba "API Keys", utilizando o navegador e sua chave teste API através do link abaixo e verifique se retorna um JSON:
 http://api.openweathermap.org/data/2.5/weather?q=London&appid=your-api_key
 
+Obtendo o código da aplicação, que é open-source e em Node.js, foi disponibilizado pelo curso.
+
+Que possui um método GET e outro POST, no arquivo *weather/routes/index.js*.
+
+O método POST, requer, além da cidade e métrica (Celsius) ou Imperial (Fahrenheit), a chave da API conforme trecho do código abaixo:
+
+```javascript
+...output omitted..
+const OWM_API_KEY = process.env.OWM_API_KEY || 'invalid_key';
+...output omitted...
+router.post('/get_weather', async function (req,res) {
+  let city = req.body.city;
+  let url = http://api.openweathermap.org/data/2.5/weather?q=${city}&units=${UNITS}&appid=${OWM_API_KEY};
+```
+Uma das tarefas deste capítulo é informar o sistema métrico e a chave da API através dos arquivos de configuração dependendo do ambiente. 
+
+###### Adicionando secrets e config maps no OpenShift
+
+Crie um novo projeto (*Projects -> New*), em seguinda vá a menu *Advanced -> Search* e selecione um serviço Secret. Para criar uma nova secret clique em *Create → Key/Value Secret*, conforme imagem abaixo:
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/select-secret.png "Criando um novo secret no Openshift")
+
+Na página Create Key/Value Secret, insira *owm-api-secret* no campo Secret Name e *OWM_API_KEY* no campo Key e copie a chave de API padrão gerada para sua conta da API OpenWeatherMap no campo Value.
+
+Agora, crie um config map para armazenar a métrica do tempo para o app. Clique em *Advanced → Search* e procure por procure configmap. Selecione a opção ConfigMap e clique em *Create*.
+A página vai exibir um arquivo YAML com valores pre-definidos, exclua os atuais dados e substitua pelo seguinte código:
+
+```yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: weather-config
+  namespace: youruser-weather
+data:
+  UNITS: metric
+```
+
+
+```
+Certifique-se de manter o recuo correto conforme mostrado no trecho. Os arquivos YAML diferenciam a distância do recuo.
+```
+
+
 
