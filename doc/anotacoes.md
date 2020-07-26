@@ -253,11 +253,42 @@ metadata:
 data:
   UNITS: metric
 ```
-
-
 ```
 Certifique-se de manter o recuo correto conforme mostrado no trecho. Os arquivos YAML diferenciam a distância do recuo.
 ```
+###### Inicie a publicação do App no OpenShift
+
+Adicione um aplicativo ao projeto Weather, em: *+ADD -> From Catalog -> Node.js -> Create*.
+Insera as infomrações conforme demonstrado abaixo e clique em *Deployment Configuration* para isnerir os config maps e secrets:
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/config-app-arq-externo.png "Criando um novo app do projeto no Openshift")
+
+Em seguida preencha as informações referente aos arquivos YAML, certificando que fique igual a imagem abaixo:
+Obs.: Caso fique uma value em branco remova ela.
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/deployment-config.png "Editando as configurações do deployment da App no Openshift")
+
+Após criar o app, sua compilação será executada e a app disponibilizada no pod. Verifique se ocorreu tudo corretamente, através dos logs e/ou menu Topology. Abra a URL e insira o nome de uma cidade (sem acentos) e clica em buscar, será retornado dados da temperatura da cidade.
+
+Para mudar informações no config map, clique em *Advanced → Search*, em seguida selecione *Service* para expandir o menu e procure *configmap*. Em seguida, selecione *ConfigMap*. Clique nos três pontos à direita de *weather-config* e clique em *Edit Config Map*.
+Altere o valor do sistema métrico:
+
+```yml
+data:
+  UNITS: imperial
+```
+
+Reimplante o App no menu *Topology -> your-app -> Actions -> Start Rollout*, conforme imagem abaixo:
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/reimplantar-app.png "Reimplantando App")
+
+Teste novamente, perceba que os dados são exibidos em F*:
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/teste-openweather.png "Teste app Weather")
+
+
+#### Conectando sua aplicação ao banco de dados de sua preferência
 
 
 
+https://access.redhat.com/documentation/en-us/openshift_container_platform/4.2/html-single/cli_tools/index#creating-an-application-with-a-database
