@@ -439,7 +439,42 @@ A média ideal de utilização da CPU para cada pod. Se a média global de utili
 
 #### Exercício: Dimensionamento de um aplicativo
 
-Crie uma nova ramificação no git denominada *scale* e utilize o projeto *php-scale* deste curso. Crie um novo porjeto no OpenShift com o nome *seu_usuário-scale*. Após isso, implante um aplicativo em PHP puro utilizando o catálogo. Preencha o formulário com informações do repositório (diretorio: /php-scale) e clique em Create. Espere o processo de build finalizar e clique no link. 
+Crie uma nova ramificação no git denominada *scale* e utilize o projeto *php-scale* deste curso. Crie um novo porjeto no OpenShift com o nome *seu_usuário-scale*. Após isso, implante um aplicativo em PHP puro utilizando o catálogo. Preencha o formulário com informações do repositório (diretorio: /php-scale) e clique em Create. Espere o processo de build finalizar e clique no link para visualizar sua aplicação, que está exibindo o nome do host e o IP do pod.
 
+Ex.: "I am running on host -> scale-1-nsqzj (10.131.9.115)"
+O *scale-1-nsqzj* é o nome do pod da aplicação.
+
+Dimensione o aplicativo para dois pods e confirme se você ainda consegue acessá-lo pela Internet. Repare que o acesso continua normal, porém sempre direcionando ao primeiro pod criado.
+
+Por padrão, o balanceador de carga redireciona todas as solicitações de um cliente específico para o** mesmo pod**. Configure o recurso de rota para desativar a afinidade entre os clientes e os pods.
+
+Edite o arquivo YAML da rota, para que seja psosível rebalancear a aplicação. Clique em *Topology -> your-app -> Routes -> YAML*. Adicione as duas linhas abaixo no item *annotations*. 
+
+```yml
+  haproxy.router.openshift.io/balance: roundrobin
+  haproxy.router.openshift.io/disable_cookies: 'true'
+```
+obs.: Lembre que nestes arquivos o espaçamento é importante e não deve ser alterado.
+
+Abra novamente a url e atualize a página constantemente. Observe que o nome do pod e o endereço IP são alternados a cada solicitação.
+
+Se reduzimos o dimensionamento do aplicativo para um pod, as configurações de *round robin* se manterá, mas como só há um pod, ele não efetuará alternações.
+
+
+Na segunda parte do exercício, você configurará o OpenShift para dimensionar automaticamente o aplicativo quando a carga da CPU for superior a 20%.
+
+```
+$ oc login https://api.cluster.domain.example.com:6443
+Username: youruser
+Password: ******
+Login successful.
+...output omitted...
+```
+```
+$ oc autoscale dc/scale --max=3 --cpu-percent=20
+horizontalpodautoscaler.autoscaling/scale autoscaled
+```
+
+### Capítulo 5: Solução e correção de problemas de um aplicativo
 
 
