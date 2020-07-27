@@ -438,3 +438,8 @@ Número máximo de pods O HPA não aumenta o dimensionamento do aplicativo para 
 A média ideal de utilização da CPU para cada pod. Se a média global de utilização da CPU estiver acima desse valor, o HPA iniciará um novo pod. Se a média global de utilização da CPU estiver abaixo desse valor, o HPA excluirá um pod.
 
 #### Exercício: Dimensionamento de um aplicativo
+
+Crie uma nova ramificação no git denominada *scale* e utilize o projeto *php-scale* deste curso. Crie um novo porjeto no OpenShift com o nome *seu_usuário-scale*. Após isso, implante um aplicativo em PHP puro utilizando o catálogo. Preencha o formulário com informações do repositório (diretorio: /php-scale) e clique em Create. Espere o processo de build finalizar e clique no link. 
+
+
+
