@@ -356,4 +356,85 @@ const DB_CONFIG = process.env.DB_CONFIG
 ```
 
 https://access.redhat.com/documentation/en-us/openshift_container_platform/4.2/html-single/cli_tools/index#creating-an-application-with-a-database
+##### Exercício 
+Neste exercício, você implantará um aplicativo Node.js que se conecte a um banco de dados PostgreSQL no OpenShift utilizando uma aplicação exemplo.
 
+A aplicação *contacts*, deverá ser capaz de conectar em um banco de datos utilizandos informações externas a aplicação, para tanto será definido um arquivo YAML contendo dados da conexão e o ambiente atual (Prd., Hml., UAT ).
+
+O *package.json* deste app contém bibliotecas de conexão ao PostgreSQL e as informações de conexão com o banco de dados são configuradas no arquivo DO101-apps/contacts/db/config.js. 
+
+A rota desta aplicação tem como objetivo efetuar operações no banco de dados, o arquivo *contacts/routes/index.js* contém o código para inserir e buscar informações de contato em um banco de dados PostgreSQL.
+
+##### Criando um banco de dados no OpenShift
+
+Crie um projeto denominado *yourname-contacts* e adiciona a aplicação um serviço de banco de dados (*ADD+ -> Database ->  PostgreSQL (Ephemeral)*) e inclua as variaveis de conexão do banco.
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/database-postgres.png "Criando serviçi de banco de dados")
+ 
+Crie uma nova secret para o banco de dadado. Vá na opção *Advanced → Search -> secret -> Create → Key/Value Secret*. Digite *contactsdb-secret* no campo Secret Name, *DB_CONFIG* no campo Key e *postgresql://contacts:contacts@contactsdb:5432/contactsdb* no campo Value, conforme imagem abaixo:
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/contactsdb-secret.png "Secret banco de dados")
+
+Em seguida, adicione um novo aplicaitivo referenciando projeto no github contacts. Clique na opção *Deployment Configuration* para informar o secret do banco de dados, será utilizada a secret que acabamos de criar *contactsdb-secret*.
+
+Após a compilação é possível abrir a aplicação e gerar uma lista de contatos (acionando o botão SEED Contacts). 
+
+Por fim, é posssível interagir diretamente com o banco de dados ao acessar o seu pod utilizando a linha de comandos. Vá em *Topology -> Pods -> Terminal*, em seguida, insira os seguintes comandos.
+
+```sql
+--Coneão com o banco de dados contactsdb
+psql -U contacts contactsdb
+--Listar tabelas
+\dt
+--Selecionar dados da tabela
+select * from contacts;
+```
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/db-output.png "Terminal banco de dados")
+
+
+### Capítulo 4. Dimensionamento de aplicativos no OpenShift
+A maioria dos aplicativos reais não é executada apenas em um pod. Muitas vezes, eles precisam ser executados em diversos pods para atender à crescente demanda dos usuários. Ao duplicar o aplicativo em vários pods, o aplicativo é escalado para atender à demanda dos usuários. Quando um usuário faz uma solicitação para acessar o aplicativo, o OpenShift direciona automaticamente a solicitação de serviço para um pod disponível. Dessa forma, mais usuários podem acessar simultaneamente o aplicativo. Se houver mais pods executando o aplicativo, a probabilidade de ocorrer interrupções ou indisponibilidade do aplicativo para os usuários será menor.
+
+Alguns aplicativos recebem um grande número de solicitações simultâneas apenas em determinados períodos, tornando muito difícil dimensionar o número de pods antes de executar o aplicativo. No entanto, há custos extras associados à execução de mais pods do que o necessário quando o tráfego não está no pico.
+
+O Red Hat OpenShift Container Platform se refere à ação de alterar o número de pods de um aplicativo para dimensionar. Scaling up significa aumentar o número de pods de um aplicativo. Scaling down significa diminuir esse número. O dimensionamento para aumentar o número permite que o aplicativo controle mais solicitações de clientes, e o dimensionamento para reduzir o número permite a redução de custos quando a carga diminui.
+
+Lembre-se de que, para que seus clientes acessem o aplicativo de fora do OpenShift, você deve criar um recurso de rota que associe uma URL pública ao aplicativo. Ao dimensionar seu aplicativo, o OpenShift configura automaticamente essa rota para distribuir solicitações de clientes entre os pods dos membros.
+
+#### Preparação do aplicativo para o dimensionamento
+O OpenShift permite que qualquer aplicativo seja dimensionado criando vários pods, mas isso não significa que todo aplicativo se tornará automaticamente dimensionável porque está em execução no OpenShift. O aplicativo deve ser capaz de funcionar corretamente executando várias instâncias dele próprio.
+
+Alguns aplicativos web mantêm o estado do usuário por meio de algum tipo de abstração de sessão HTTP, geralmente com cookies HTTP. Como o OpenShift pode direcionar um usuário para qualquer pod em execução, as informações dessa sessão devem estar disponíveis globalmente e não apenas no primeiro pod que o usuário acessar. Portanto, esses aplicativos devem manter as informações de sessão em um repositório central, como um banco de dados ou armazenamento compartilhado na memória, como Redis ou memcached, e não apenas no sistema de arquivos local do pod.
+
+Como exemplo imagine uma aplicação Java com JSF, na qual temos diversos escopos de sessão, e para armazenar informações do usuário e da aplicação injetamos muitas das vezes estes dados na sessão HTTP, utilizando a classe *FacesContext*.
+
+
+#### Configuração do recurso de rota
+Por padrão, o OpenShift tenta direcionar todas as solicitações de um cliente para o mesmo pod. Você pode configurar o recurso de rota para modificar esse comportamento. Por exemplo, se o algoritmo round robin é selecionado, o OpenShift distribui ou faz o balanceamento de carga das solicitações aplicando round robin entre os pods. Com dois pods, por exemplo, o OpenShift envia a primeira solicitação ao primeiro pod, a segunda solicitação ao segundo pod, a terceira solicitação ao primeiro pod novamente e assim por diante.
+
+É possível escalar o número de pods de sua aplicação manualmente, conforme imagem abaixo:
+
+![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/scall-pod.png "Dimensionamento de Pods")
+
+#### Configuração do Horizontal Pod Autoscaler
+Além do dimensionamento manual, o OpenShift fornece o recurso *Horizontal Pod Autoscaler* (HPA). O HPA aumenta ou diminui automaticamente o número de pods de acordo com a utilização média da CPU. Os desenvolvedores também podem configurar o HPA para usar métricas personalizadas de aplicativos para dimensionamento. Embora essa configuração avançada esteja fora do escopo deste curso, com o link abaixo é possível obter mais informações sobre o assunto.
+
+https://docs.openshift.com/container-platform/4.2/nodes/pods/nodes-pods-autoscaling.html
+
+
+O console da web do OpenShift não fornece uma interface para ativar o HPA. Portanto, os desenvolvedores devem usar o cliente de linha de comando oc. Neste exemplo, o comando ativa e configura o HPA para a configuração de implantação de sua aplicação :
+```
+$ oc autoscale your-app --min=1 --max=5 --cpu-percent=80
+```
+Estas são as opções:
+
+**--min=1**
+Número mínimo de pods
+
+**--max=5**
+Número máximo de pods O HPA não aumenta o dimensionamento do aplicativo para além desse limite, mesmo que a carga continue a crescer.
+
+**--cpu-percent=80**
+A média ideal de utilização da CPU para cada pod. Se a média global de utilização da CPU estiver acima desse valor, o HPA iniciará um novo pod. Se a média global de utilização da CPU estiver abaixo desse valor, o HPA excluirá um pod.
+
+#### Exercício: Dimensionamento de um aplicativo
