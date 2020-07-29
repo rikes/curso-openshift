@@ -287,6 +287,8 @@ Teste novamente, perceba que os dados são exibidos em F*:
 
 ![alt text](https://github.com/rikes/curso-openshift/blob/master/doc/img/teste-openweather.png "Teste app Weather")
 
+https://docs.openshift.com/enterprise/3.2/dev_guide/configmaps.html
+https://access.redhat.com/documentation/en-us/openshift_container_platform/3.10/html/developer_guide/dev-guide-configmaps
 
 #### Conectando sua aplicação ao banco de dados de sua preferência
 
@@ -477,4 +479,19 @@ horizontalpodautoscaler.autoscaling/scale autoscaled
 
 ### Capítulo 5: Solução e correção de problemas de um aplicativo
 
+Quando ocorrem falhas em um aplicativo, o console da web ajuda os desenvolvedores a identificar a parte do processo de implantação que gerou o erro. Em cada etapa, o OpenShift armazena logs que os desenvolvedores podem consultar para solucionar problemas.
 
+É possível consultar o status de cada aplicativo na página Topology. O ícone do aplicativo fornece uma visão geral do estado.
+
+Uma marca próxima ao ícone indica o status da compilação, como mostrado na captura de tela a seguir. O ícone à esquerda indica uma compilação bem-sucedida. O ícone à direita indica uma falha na compilação.
+
+Se a compilação for bem-sucedida, o OpenShift implantará o aplicativo. EM topology, o app com icone azul e marcação verde, corresponde a uma compilação e publicação com sucesso, mas se a marcação for vermelha e a marcação verde, siginifca que a compilação foi executada, porém por algum motivo o pod do app falhou. NEstes casos é necessário avaliar o log para uma melhor apuração.
+
+#### Acesso a eventos do OpenShift
+Para simplificar a solução de problemas, o OpenShift oferece um registro em log de alto nível e um recurso de auditoria denominado events. Os eventos do OpenShift indicam ações significativas, como a inicialização ou a destruição de um pod.
+
+Para ler os eventos do OpenShift no console da web, selecione o menu Advanced → Events.
+
+Como o OpenShift atualiza automaticamente a página com novos eventos, os desenvolvedores podem acompanhar o progresso da implantação em tempo real. Mais especificamente, quando uma compilação ou implantação de aplicativo apresenta falhas, muitas vezes são fornecidas dicas fundamentais sobre a causa-raiz do problema nos eventos do projeto. Às vezes, as informações apresentadas são suficientes para que o desenvolvedor corrija o aplicativo sem ter que inspecionar os logs mais detalhados do OpenShift.
+
+O OpenShift usa eventos para relatar erros, como quando há falha na compilação ou criação de um pod. Ele também notifica condições normais por meio de eventos, como quando o OpenShift dimensiona automaticamente um aplicativo adicionando um novo pod.
